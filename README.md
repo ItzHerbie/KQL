@@ -1,2 +1,2 @@
 # KQL - Detection and Threat Hunting
-Threat hunting query in Defender XDR and Azure Sentinel
+Threat hunting queries in Defender XDR and Azure Sentinel
