@@ -1,0 +1,37 @@
+// This query detects accounts set as local administrator on workstations or servers
+
+//DEFENDER XDR
+DeviceInfo
+| where Timestamp > 30days
+| where RegistryDeviceTag in ("Add Group Here", "Add Group Here") //Add device tags/groups here if you devide workstations by differnt pilot group or only want to target one set of workstations
+| join kind=inner
+(
+	DeviceLogonEvents
+	| where AccountName !hasprefix "Add Account Prefix" //Add Known Account prefix that are expected to be local admins to be excluded
+	| where AccountName !hasprefix "Add Account Prefix" //Add Known Account prefix that are expected to be local admins to be excluded
+	| where AccountName !in ("Add Account", "Add Account", "Add account") //Add Known Accounts that are expected to be local admins to be excluded
+	| where IsLocalAdmin == 1
+)
+on DeviceName
+| project DeviceName, AccountName , LogonType, Time=InitiatingProcessCreationTime
+| summarize by DeviceName, AccountName
+| sort by DeviceName
+
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+//AZURE SENTINEL
+DeviceInfo
+| where TimeGenerated > 30days
+| where RegistryDeviceTag in ("Add Group Here", "Add Group Here") //Add device tags/groups here if you devide workstations by differnt pilot group or only want to target one set of workstations
+| join kind=inner
+(
+	DeviceLogonEvents
+	| where AccountName !hasprefix "Add Account Prefix" //Add Known Account prefix that are expected to be local admins to be excluded
+	| where AccountName !hasprefix "Add Account Prefix" //Add Known Account prefix that are expected to be local admins to be excluded
+	| where AccountName !in ("Add Account", "Add Account", "Add account") //Add Known Accounts that are expected to be local admins to be excluded
+	| where IsLocalAdmin == 1
+)
+on DeviceName
+| project DeviceName, AccountName , LogonType, Time=InitiatingProcessCreationTime
+| summarize by DeviceName, AccountName
+| sort by DeviceName
