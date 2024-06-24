@@ -18,6 +18,7 @@ DeviceInfo
 | extend IPAddresses_0_IPAddress = parse_json(IPAddresses)[0].IPAddress
 | project Timestamp, DeviceId, DeviceName, DeviceType, Vendor, IPAddresses_0_IPAddress, MacAddress
 
+---------------------------------------------------------------------------
 
 //AZURE SENTINEL
 DeviceInfo
