@@ -1,6 +1,5 @@
 //This query detects rogue devices on a network. It utilizes Defender for Endpoint device discovery.
 
-//DEFENDER XDR
 DeviceInfo
 | where Timestamp >= ago(60d)
 | where OnboardingStatus != "Onboarded"
@@ -18,22 +17,3 @@ DeviceInfo
 | extend IPAddresses_0_IPAddress = parse_json(IPAddresses)[0].IPAddress
 | project Timestamp, DeviceId, DeviceName, DeviceType, Vendor, IPAddresses_0_IPAddress, MacAddress
 
----------------------------------------------------------------------------
-
-//AZURE SENTINEL
-DeviceInfo
-| where TimeGenerated >= ago(60d)
-| where OnboardingStatus != "Onboarded"
-| where DeviceType == "NetworkDevice"
-// The following line is a list of prohibited vendors by gsa.gov
-//| where Vendor contains "Kaspersky" or Vendor contains "Huawei" or Vendor contains "ZTE" or Vendor contains "Hytera" or Vendor contains "Hangzhou" or Vendor contains "Dahua"
-//The following line is a list of known vendors the company may use.
-| where Vendor !in ("Enter Vendor", "Enter Vendor", "Enter Vendor") 
-| summarize arg_max(TimeGenerated, *) by DeviceId
-| where isempty(MergedToDeviceId) 
-| invoke SeenBy()
-| project TimeGenerated, DeviceId, DeviceName, DeviceType, Vendor//, SeenBy, PublicIP
-// The following line is to join the DeviceNetworkInfo table to grab the IPaddress and MacAddress of the device
-| join DeviceNetworkInfo on DeviceId
-| extend IPAddresses_0_IPAddress = parse_json(IPAddresses)[0].IPAddress
-| project TimeGenerated, DeviceId, DeviceName, DeviceType, Vendor, IPAddresses_0_IPAddress, MacAddress
