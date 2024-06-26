@@ -1,5 +1,6 @@
 //This query detects rogue devices on a network. It utilizes Defender for Endpoint device discovery.
 
+let ipRanges = dynamic(["Enter Subnet", "Enter Subnet", "Enter Subnet"]);
 DeviceInfo
 | where Timestamp >= ago(60d)
 | where OnboardingStatus != "Onboarded"
@@ -15,5 +16,6 @@ DeviceInfo
 // The following line is to join the DeviceNetworkInfo table to grab the IPaddress and MacAddress of the device
 | join DeviceNetworkInfo on DeviceId
 | extend IPAddresses_0_IPAddress = parse_json(IPAddresses)[0].IPAddress
-| project Timestamp, DeviceId, DeviceName, DeviceType, Vendor, IPAddresses_0_IPAddress, MacAddress
+| ipv4_is_in_any_range(tostring(IPAddresses_0_IPAddress).ipRanges)
+| project Timestamp, DeviceId, DeviceName, DeviceType, Vendor, tostring(IPAddresses_0_IPAddress), MacAddress, SeenBy
 
