@@ -1,4 +1,4 @@
-// This query will detect remote management software on workstations. This could potentialy help detect compromised devices.
+// This query will detect remote monitoring and management software on workstations. This could potentialy help detect compromised devices.
 
 DeviceProcessEvents
 | where Timestamp >= ago(90d)
