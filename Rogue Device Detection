@@ -16,6 +16,6 @@ DeviceInfo
 // The following line is to join the DeviceNetworkInfo table to grab the IPaddress and MacAddress of the device
 | join DeviceNetworkInfo on DeviceId
 | extend IPAddresses_0_IPAddress = parse_json(IPAddresses)[0].IPAddress
-| ipv4_is_in_any_range(tostring(IPAddresses_0_IPAddress).ipRanges)
+| where ipv4_is_in_any_range(tostring(IPAddresses_0_IPAddress).ipRanges)
 | project Timestamp, DeviceId, DeviceName, DeviceType, Vendor, tostring(IPAddresses_0_IPAddress), MacAddress, SeenBy
 
