@@ -1,0 +1,43 @@
+let ipRanges = dynamic([
+    "ENTER SUBNET", 
+    "ENTER SUBNET",
+    "ENTER SUBNET"
+]);
+DeviceEvents
+| where ActionType == "UsbDriveMounted"
+| summarize by DeviceName, DeviceId, tostring(AdditionalFields)
+| extend DriveLetter = tostring(todynamic(AdditionalFields).DriveLetter)
+| extend ProductName = tostring(todynamic(AdditionalFields).ProductName)
+| extend Manufacturer = tostring(todynamic(AdditionalFields).Manufacturer)
+| where AdditionalFields !contains "DVD-ROM" 
+    and AdditionalFields !contains "DVDRAM"
+    and AdditionalFields !contains "DVD-RW"
+    and AdditionalFields !contains "CD/ROM"
+    and AdditionalFields !contains "IBM SATA"
+| join ( 
+    DeviceNetworkInfo
+    | where NetworkAdapterStatus == "Up"
+    | where parse_json(ConnectedNetworks)[0].Category == 'Domain'
+    | where parse_json(ConnectedNetworks)[0].Description == 'ENTER COMPANY DOMAIN'
+    | extend IPAddress_ = tostring(IPAddresses[0].IPAddress)
+    | where ipv4_is_in_any_range(tostring(IPAddress_), ipRanges)
+    | where IPAddress_ != ""
+    | summarize by DeviceName, DeviceId, IPAddress_
+    ) on DeviceName
+| summarize by DeviceName, DriveLetter, Manufacturer, ProductName, IPAddress_
+| join ( 
+    DeviceInfo
+    | where OSPlatform in (
+      @"WindowsServer2003",
+      @"WindowsServer2003R2", 
+      @"WindowsServer2008",
+      @"WindowsServer2008R2", 
+      @"WindowsServer2012",
+      @"WindowsServer2012R2", 
+      @"WindowsServer2016", 
+      @"WindowsServer2019", 
+      @"WindowsServer2022"
+      )
+    | summarize by DeviceName, OSPlatform, MachineGroup
+    ) on DeviceName
+| summarize by DeviceName, IPAddress_, OSPlatform, DriveLetter, Manufacturer, ProductName
