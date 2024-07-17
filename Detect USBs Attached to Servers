@@ -1,3 +1,5 @@
+//This query will detect if a USB or external storage device is plugged into a server
+
 let ipRanges = dynamic([
     "ENTER SUBNET", 
     "ENTER SUBNET",
