@@ -5,15 +5,11 @@ DeviceInfo
 | where Timestamp >= ago(60d)
 | where OnboardingStatus != "Onboarded"
 | where DeviceType == "NetworkDevice"
-// The following line is a list of prohibited vendors by gsa.gov
-//| where Vendor contains "Kaspersky" or Vendor contains "Huawei" or Vendor contains "ZTE" or Vendor contains "Hytera" or Vendor contains "Hangzhou" or Vendor contains "Dahua"
-//The following line is a list of known vendors the company may use.
-| where Vendor !in ("Enter Vendor", "Enter Vendor", "Enter Vendor") 
+| where Vendor !in ("Enter Known Vendor", "Enter Known Vendor", "Enter Known Vendor") 
 | summarize arg_max(Timestamp, *) by DeviceId
 | where isempty(MergedToDeviceId) 
 | invoke SeenBy()
 | project Timestamp, DeviceId, DeviceName, DeviceType, Vendor//, SeenBy, PublicIP
-// The following line is to join the DeviceNetworkInfo table to grab the IPaddress and MacAddress of the device
 | join DeviceNetworkInfo on DeviceId
 | extend IPAddresses_0_IPAddress = parse_json(IPAddresses)[0].IPAddress
 | where ipv4_is_in_any_range(tostring(IPAddresses_0_IPAddress).ipRanges)
