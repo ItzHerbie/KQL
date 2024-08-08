@@ -1,3 +1,3 @@
 # KQL - Detection and Threat Hunting
-Detection rules and threat hunting queries in Defender XDR and Azure Sentinel
+Sharing Detection rules and threat hunting queries I have built for Defender XDR and Azure Sentinel. Enjoy
 
