@@ -1,0 +1,10 @@
+//If you are collecting Nutanix logs, specifically the syslog_module ones here is a detection rule to see failed logons to your clusters with Defender XDR/Azure Sentinel.  
+
+Syslog
+| where HostName in ("ENTER IP OF NUTANIX CLUSTER" ) //Nutanix Hosts
+| where SyslogMessage contains "Failed password for"
+| extend Username = extract(@"Failed password for(?: invalid user)? ([\w.-]+)", 1, SyslogMessage)
+| extend IPAddress = extract(@"from ([\d.]+)", 1, SyslogMessage)
+| extend Port = extract(@"port (\d+)", 1, SyslogMessage)
+| summarize by HostName, Username, ActorIP=IPAddress, Port, SyslogMessage
+
