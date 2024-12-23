@@ -1,96 +1,22 @@
 // This query will detect remote monitoring and management software on workstations. This could potentialy help detect compromised devices.
 
-DeviceProcessEvents
-| where Timestamp >= ago(90d)
-| where FileName has_any (
-    "acticalRMM",
-    "Action1",
-    "AeroAdmin",
-    "AgentMon.exe",
-    "Ammyy",
-    "AnyDesk",
-    "Atera",
-    "AteraAgent.exe",
-    "AteraRC.exe",
-    "Auvik.Agent.exe",
-    "Auvik.Engine.exe",
-    "awesome-rat",
-    "ccme_sm.exe",
-    "chaos",
-    "Chrome Remote Desktop",
-    "ConnectWise",
-    "DameWare Mini Remote Control",
-    "Dameware",
-    "Deployment tools",
-    "Domotz.exe",
-    "DomotzClient.exe",
-    "eHorus",
-    "Fixme",
-    "FlawedAmmyy",
-    "friendspeak",
-    "Get2",
-    "getandgo",
-    "GetASRSettings.exe",
-    "GoToAssist",
-    "Intelliadmin",
-    "ir_agent.exe",
-    "klnagent.exe",
-    "konea.exe",
-    "kworking.exe",
-    "LogMeIn.exe",
-    "LogMeIn",
-    "LTAService.exe",
-    "LTClient.exe",
-    "LTSvcMon.exe",
-    "MeshCentral",
-    "mRemoteNG",
-    "NAPClt.exe",
-    "NetSupport",
-    "ngrok",
-    "NinjaRMM.exe",
-    "NinjaRMM",
-    "NinjaRMMAgent.exe",
-    "nssm",
-    "OCS Agent",
-    "PDQDeploy",
-    "Plink",
-    "Pulseway.TrayApp.exe",
-    "PulsewayService.exe",
-    "putty.exe",
-    "QuickAssist",
-    "BASupSrvc",
-    "BASupSrvcCnfg",
-    "Radmin",
-    "RealVNC",
-    "Remote Manipulator System",
-    "Remote Utilities",
-    "RemotePC",
-    "rustdesk",
-    "ScreenConnect.Client.exe",
-    "ScreenConnect.ClientService.exe",
-    "ScreenConnect.Service.exe",
-    "ScreenConnect.WindowsClient.exe",
-    "ScreenConnect",
-    "Splashtop",
-    "SupRemo",
-    "Syncro",
-    "tacticalrmm",
-    "TakeControlRDViewer.exe",
-    "Tanium",
-    "teamviewer.exe",
-    "TigerVNC",
-    "TightVNC",
-    "tmate",
-    "UltraViewer",
-    "VncClient.exe",
-    "VNCconnect",
-    "WAPT",
-    "Webex remote",
-    "winvnc.exe",
-    "ZA_Connect.exe",
-    "ZohoAssist"
-    )
-| summarize count() by FileName, DeviceName
-| sort by count_ desc
-| where FileName != "putty.exe" //Exclude known software here
+let LOLRMM = externaldata(Name:string,Category:string,Description:string,Author:string,Date:datetime,LastModified:datetime,Website:string,Filename:string,OriginalFileName:string,PEDescription:string,Product:string,Privileges:string,Free:string,Verification:string,SupportedOS:string,Capabilities:string,
+Vulnerabilities:string,InstallationPaths:string,Artifacts:string,Detections:string,References:string,Acknowledgement:string)[@"https://lolrmm.io/api/rmm_tools.csv"] with (format="csv", ignoreFirstRecord=True);
+// Exclude any allowed RMMs based on name, example: dynamic(["Rapid7"]);
+let AllowedRMM_Name = dynamic([]);
+// Exclude any RMM based on executable name, example: dynamic(["mstsc.exe", "winscp.exe", "bomgar-scc.exe"]), used by multiple rmms
+let AllowedRMM_executable = dynamic([]); 
+let ParsedExecutables = LOLRMM
+    | where Name !in (AllowedRMM_Name)
+    | distinct InstallationPaths
+    | extend FileNames = extract_all(@"\b([a-zA-Z0-9 _-]+\.exe)", InstallationPaths)
+    | mv-expand FileNames to typeof(string)
+    | where isnotempty(FileNames)
+    | project FileNames = tolower(FileNames)
+    | distinct FileNames
+    | where FileNames !in (AllowedRMM_executable);
+DeviceNetworkEvents
+| where tolower(InitiatingProcessFileName) in (ParsedExecutables)
+| where ActionType == "ConnectionSuccess"
+| summarize TotalEvents = count(), ExecutableCount = dcount(InitiatingProcessFileName), Executables = make_set(InitiatingProcessFileName) by DeviceName, DeviceId, RemoteUrl
 
