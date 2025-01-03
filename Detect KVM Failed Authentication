@@ -1,0 +1,9 @@
+// This KQL query will help detect failed authentication towards your Raritan KVMs
+
+Syslog
+| where HostIP in ("Enter KVM IP", "ENTER KVM IP")
+| where SyslogMessage contains "failed"
+| extend AuthStatus = extract("Authentication (\\w+)", 1, SyslogMessage)
+| extend User = extract("user '(.*?)'", 1, SyslogMessage)
+| extend FromHost = extract("host '(.*?)'", 1, SyslogMessage)
+| summarize by HostIP, AuthStatus, User, FromHost
