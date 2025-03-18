@@ -1,0 +1,8 @@
+This is to detect if a user is connecting to the remote host uisng PSSession. 
+
+DeviceEvents
+//| where TimeGenerated >= ago(90d)
+| where AdditionalFields contains "Enter-PSSession"
+| extend Command_ = tostring(AdditionalFields.Command)
+| where Command_ contains "-ComputerName" or Command_ contains "-Credentials"
+| summarize by DeviceName, InitiatingProcessAccountUpn, InitiatingProcessParentFileName, Command_
