@@ -1,0 +1,11 @@
+// Identify potential file exfiltration activities by leveraging Palo Alto Networks firewall logs
+
+CommonSecurityLog
+| where TimeGenerated >= ago(90d)
+| where Activity == "THREAT"
+| where DeviceAction == "alert" and DeviceEventClassID == "file"
+| where FlexString2 == "client-to-server"
+| where not( DestinationIP startswith "10." or DestinationIP startswith "192.168." or (DestinationIP startswith "172." and toint(split(DestinationIP, ".")[1]) between (16 .. 31)) )
+| summarize EventCount=count(), LatestTime=max(TimeGenerated) by Activity, DeviceAction, DeviceEventClassID, FlexString2, SourceIP, DestinationIP, RequestURL, ApplicationProtocol
+
+NOTE: Add | where ApplicationProtocol in ("", "") - to see specific protocols being used or !in to exclude
