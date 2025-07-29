@@ -11,3 +11,5 @@ DeviceProcessEvents
 | where ProcessCommandLine contains ".vscode\\extensions"
 | extend ExtensionBaseName = extract(@"\\.vscode\\extensions\\([^.]+.[^\\]+)-\d", 1, ProcessCommandLine)
 | summarize by DeviceName, ExtensionBaseName
+
+//NOTE: If your SOC utilizes Tenable Security, refer to Plugin ID 136618 (Microsoft Visual Studio Code Extensions Installed) for visibility into installed extensions.
