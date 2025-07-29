@@ -1,0 +1,13 @@
+//The following KQL queries will help with finding installed Microsoft Visual Studio Code(VSCode) extensions
+
+DeviceEvents
+| where TimeGenerated >= ago(90d)
+| where InitiatingProcessCommandLine contains ".vscode\\extensions"
+| extend ExtensionBaseName = extract(@"\\.vscode\\extensions\\([^.]+.[^\\]+)-\d", 1, InitiatingProcessCommandLine)
+| summarize by DeviceName, ExtensionBaseName
+
+DeviceProcessEvents
+| where TimeGenerated >= ago(90d)
+| where ProcessCommandLine contains ".vscode\\extensions"
+| extend ExtensionBaseName = extract(@"\\.vscode\\extensions\\([^.]+.[^\\]+)-\d", 1, ProcessCommandLine)
+| summarize by DeviceName, ExtensionBaseName
