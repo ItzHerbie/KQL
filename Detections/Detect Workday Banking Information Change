@@ -63,8 +63,8 @@ workday_change_banking_info
        or (isnull(AuthRegisterTime) and TAPTime >= SigninTime - 3d and TAPTime <= SigninTime)
 // If multiple TAPs exist, keep the latest one
 | summarize arg_max(TAPTime, *) by UserPrincipalName, ChangeTime, SigninTime, AuthRegisterTime
-| extend AuthMethodFound = iff(isnull(AuthRegisterTime), "No", "Yes"),
-         TAPFound = iff(isnull(TAPTime), "No", "Yes")
+| extend AuthMethodFound = iff(isnull(AuthRegisterTime), "AuthMethodFound=No", "AuthMethodFound=Yes"),
+         TAPFound = iff(isnull(TAPTime), "TAPFound=No", "TAPFound=Yes")
 | project
     UserPrincipalName,
     TAPFound,
