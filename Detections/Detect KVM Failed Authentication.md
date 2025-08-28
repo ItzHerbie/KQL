@@ -1,5 +1,6 @@
-// This KQL query will help detect failed authentication towards your Raritan KVMs
+This KQL query will help detect failed authentication towards your Raritan KVMs
 
+```kql
 Syslog
 | where HostIP in ("Enter KVM IP", "ENTER KVM IP")
 | where SyslogMessage contains "failed"
