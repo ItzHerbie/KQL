@@ -1,5 +1,6 @@
-// This query is used to identify commands executed on HP-Aruba Top-of-Rack (ToR) switches.
+This query is used to identify commands executed on HP-Aruba Top-of-Rack (ToR) switches.
 
+```kql
 Syslog
 | where ipv4_is_in_range(HostIP, "EnterSubnet") // Enter Subnet of where ToR switches are located
 | where SyslogMessage contains "AUDIT|CLI"
