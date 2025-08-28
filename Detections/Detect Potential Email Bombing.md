@@ -1,3 +1,5 @@
+
+```kql
 let SpamThreshold = 500; //set threshold
 EmailEvents
 | where TimeGenerated >= ago(1h) // set timeframe to look at
