@@ -1,5 +1,6 @@
-// This query detects accounts set as local administrator on workstations or servers
+This query detects accounts set as local administrator on workstations or servers
 
+```kql
 DeviceInfo
 | where Timestamp > 30days
 | where RegistryDeviceTag in ("Add Group Here", "Add Group Here") //Add device tags/groups here if you devide workstations by differnt pilot group or only want to target one set of workstations
