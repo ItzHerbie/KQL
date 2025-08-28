@@ -51,28 +51,27 @@ let password_reset =
     | project PasswordResetTime=TimeGenerated, UserPrincipalName=userPrincipalName_, ResultDescription;
 // Join change ↔ sign-in (banking change within 60m of sign-in)
 workday_change_banking_info
-| join kind=inner (workday_signin_logs) on UserPrincipalName
-| where SigninTime <= ChangeTime and ChangeTime <= SigninTime + 60m
-| extend TimeDifference = datetime_diff("minute", ChangeTime, SigninTime)
-// Keep the closest sign-in per (user, change)
-| summarize arg_min(TimeDifference, *) by UserPrincipalName, ChangeTime
+    | join kind=inner (workday_signin_logs) on UserPrincipalName
+    | where SigninTime <= ChangeTime and ChangeTime <= SigninTime + 60m
+    | extend TimeDifference = datetime_diff("minute", ChangeTime, SigninTime)
+    // Keep the closest sign-in per (user, change)
+    | summarize arg_min(TimeDifference, *) by UserPrincipalName, ChangeTime
 // Join to Auth Method registrations (within 3 days before sign-in)
 | join kind=leftouter (registered_auth_methods) on UserPrincipalName
-| where isnull(AuthRegisterTime) 
+    | where isnull(AuthRegisterTime) 
        or (AuthRegisterTime >= SigninTime - 3d and AuthRegisterTime <= SigninTime)
-| summarize arg_max(AuthRegisterTime, *) by UserPrincipalName, ChangeTime, SigninTime
+    | summarize arg_max(AuthRegisterTime, *) by UserPrincipalName, ChangeTime, SigninTime
 // Join to TAP issued events (within 3 days before AuthRegisterTime if exists, otherwise before SigninTime)
 | join kind=leftouter (tap_issued) on UserPrincipalName
-| where isnull(TAPTime) 
+    | where isnull(TAPTime) 
        or (isnotnull(AuthRegisterTime) and TAPTime >= AuthRegisterTime - 3d and TAPTime <= AuthRegisterTime)
        or (isnull(AuthRegisterTime) and TAPTime >= SigninTime - 3d and TAPTime <= SigninTime)
-// If multiple TAPs exist, keep the latest one
-| summarize arg_max(TAPTime, *) by UserPrincipalName, ChangeTime, SigninTime, AuthRegisterTime
+    // If multiple TAPs exist, keep the latest one
+    | summarize arg_max(TAPTime, *) by UserPrincipalName, ChangeTime, SigninTime, AuthRegisterTime
 // Join to password reset events (within 3 days before AutheRegisterTime if Exists, otherwise before SigninTime)
 | join kind=leftouter (password_reset) on UserPrincipalName
     | where isnull(PasswordResetTime)
-    or (isnotnull(AuthRegisterTime) and PasswordResetTime >= AuthRegisterTime - 3d and PasswordResetTime <= AuthRegisterTime)
-    or (isnull(AuthRegisterTime) and PasswordResetTime >= SigninTime - 3d and PasswordResetTime <= SigninTime)
+        or (PasswordResetTime >= SigninTime - 3d and PasswordResetTime <= SigninTime)
     | summarize arg_max(PasswordResetTime, *) by UserPrincipalName, ChangeTime, SigninTime, AuthRegisterTime, PasswordResetTime
 | extend AuthMethodFound = iff(isnull(AuthRegisterTime), "AuthMethodFound=No", "AuthMethodFound=Yes"),
          TAPFound = iff(isnull(TAPTime), "TAPFound=No", "TAPFound=Yes")
