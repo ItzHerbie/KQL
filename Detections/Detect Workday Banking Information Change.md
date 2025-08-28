@@ -6,7 +6,8 @@ Once it sees that banking information was changed it will go back and look to se
 <br />
 
 #### Azure Sentinel/Defender XDR
-<pre lang="markdown">// Successful Workday sign-ins (Today)
+```kql
+// Successful Workday sign-ins (Today)
 let workday_signin_logs =
     SigninLogs
     | where TimeGenerated >= startofday(now())
@@ -98,4 +99,4 @@ workday_change_banking_info
     WorkdayUserAgent,
     SigninUserAgent,
     DeviceDetail
-| order by ChangeTime desc </pre>
+| order by ChangeTime desc
