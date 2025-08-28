@@ -6,6 +6,7 @@ Once it seee that banking information was changed it will go back and look to se
 </p>
 <br />
 
+#### Azure Sentinel/Defender XDR
 <pre lang="markdown">// Successful Workday sign-ins (Today)
 let workday_signin_logs =
     SigninLogs
