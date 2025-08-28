@@ -1,5 +1,6 @@
-//This detection is to monitor who is creating specific operations in Intune. Only allow Intune administrators should be creating these operations. Anyone else need to be questioned. 
+This detection is to monitor who is creating specific operations in Intune. Only allow Intune administrators should be creating these operations. Anyone else need to be questioned. 
 
+```kql
 IntuneAuditLogs
 | where OperationName in ("Create RoleDefinition",
 	"Create MobileAppAssignment",
