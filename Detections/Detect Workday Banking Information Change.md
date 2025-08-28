@@ -3,6 +3,7 @@
 </h2>
 This detection is to detect on a successful sign-in to Workday where the banking information was changed within 60 minutes. 
 Once it seee that banking information was changed it will go back and look to see if a Temporary Access Pass (TAP) was issued, if an authentication method was registere, and if there was a password change.
+<br />
 
 <pre lang="markdown">// Successful Workday sign-ins (Today)
 let workday_signin_logs =
