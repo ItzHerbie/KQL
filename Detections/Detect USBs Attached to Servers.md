@@ -1,5 +1,6 @@
-//This query will detect if a USB or external storage device is plugged into a server(s)
+This query will detect if a USB or external storage device is plugged into a server(s)
 
+```kql
 let ipRanges = dynamic([
     "ENTER SUBNET", 
     "ENTER SUBNET",
