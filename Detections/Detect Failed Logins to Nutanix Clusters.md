@@ -1,5 +1,6 @@
-//If you are collecting Nutanix logs, specifically the syslog_module ones here is a detection rule to see failed logons to your clusters with Defender XDR/Azure Sentinel.  
+If you are collecting Nutanix logs, specifically the syslog_module ones here is a detection rule to see failed logons to your clusters with Defender XDR/Azure Sentinel.  
 
+```kql
 Syslog
 | where HostName in ("ENTER IP OF NUTANIX CLUSTER" ) //Nutanix Hosts
 | where SyslogMessage contains "Failed password for"
