@@ -1,5 +1,6 @@
-// Identify potential file exfiltration activities by leveraging Palo Alto Networks firewall logs
+Identify potential file exfiltration activities by leveraging Palo Alto Networks firewall logs
 
+```kql
 CommonSecurityLog
 | where TimeGenerated >= ago(90d)
 | where Activity == "THREAT"
