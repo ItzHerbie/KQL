@@ -1,5 +1,6 @@
-//The following KQL queries will help with finding installed Microsoft Visual Studio Code(VSCode) extensions
+The following KQL queries will help with finding installed Microsoft Visual Studio Code(VSCode) extensions
 
+```kql
 DeviceEvents
 | where TimeGenerated >= ago(90d)
 | where InitiatingProcessCommandLine contains ".vscode\\extensions"
@@ -11,5 +12,5 @@ DeviceProcessEvents
 | where ProcessCommandLine contains ".vscode\\extensions"
 | extend ExtensionBaseName = extract(@"\\.vscode\\extensions\\([^.]+.[^\\]+)-\d", 1, ProcessCommandLine)
 | summarize by DeviceName, ExtensionBaseName
-
-//NOTE: If your SOC utilizes Tenable Security, refer to Plugin ID 136618 (Microsoft Visual Studio Code Extensions Installed) for visibility into installed extensions.
+```
+NOTE: If your SOC utilizes Tenable Security, refer to Plugin ID 136618 (Microsoft Visual Studio Code Extensions Installed) for visibility into installed extensions.
