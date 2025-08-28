@@ -1,5 +1,6 @@
-//This detction rule/Hunting query is specific to infrastructures using xClarity. You will be able to find failed login attempts to your Integrated management Modules (IMM)s
+This detction rule/Hunting query is specific to infrastructures using xClarity. You will be able to find failed login attempts to your Integrated management Modules (IMM)s
 
+```kql
 Syslog
 | where Computer == "Enter xClarity Host IP"
 | where SyslogMessage contains "login failures" 
