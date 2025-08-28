@@ -43,6 +43,12 @@ let tap_issued =
     | extend userPrincipalName_ = tostring(parse_json(tostring(InitiatedBy.user)).userPrincipalName),
              TAPDisplayUserName = tostring(TargetResources[0].displayName)
     | project TAPTime=TimeGenerated, UserPrincipalName=userPrincipalName_, TAPDisplayUserName;
+let password_reset = 
+    AuditLogs
+    | where TimeGenerated >= startofday(now()) - 3d
+    | where ResultDescription == "User successfully reset password"
+    | extend userPrincipalName_ = tostring(parse_json(tostring(InitiatedBy.user)).userPrincipalName)
+    | project PasswordResetTime=TimeGenerated, UserPrincipalName=userPrincipalName_, ResultDescription;
 // Join change ↔ sign-in (banking change within 60m of sign-in)
 workday_change_banking_info
 | join kind=inner (workday_signin_logs) on UserPrincipalName
@@ -62,6 +68,12 @@ workday_change_banking_info
        or (isnull(AuthRegisterTime) and TAPTime >= SigninTime - 3d and TAPTime <= SigninTime)
 // If multiple TAPs exist, keep the latest one
 | summarize arg_max(TAPTime, *) by UserPrincipalName, ChangeTime, SigninTime, AuthRegisterTime
+// Join to password reset events (within 3 days before AutheRegisterTime if Exists, otherwise before SigninTime)
+| join kind=leftouter (password_reset) on UserPrincipalName
+    | where isnull(PasswordResetTime)
+    or (isnotnull(AuthRegisterTime) and PasswordResetTime >= AuthRegisterTime - 3d and PasswordResetTime <= AuthRegisterTime)
+    or (isnull(AuthRegisterTime) and PasswordResetTime >= SigninTime - 3d and PasswordResetTime <= SigninTime)
+    | summarize arg_max(PasswordResetTime, *) by UserPrincipalName, ChangeTime, SigninTime, AuthRegisterTime, PasswordResetTime
 | extend AuthMethodFound = iff(isnull(AuthRegisterTime), "AuthMethodFound=No", "AuthMethodFound=Yes"),
          TAPFound = iff(isnull(TAPTime), "TAPFound=No", "TAPFound=Yes")
 | project
@@ -71,6 +83,8 @@ workday_change_banking_info
     TAPDisplayUserName,
     AuthMethodFound,
     AuthRegisterTime,
+    PasswordResetFound,
+    PasswordResetTime,
     SigninTime,
     ChangeTime,
     TimeDifference,
