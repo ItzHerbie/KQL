@@ -1,5 +1,6 @@
-// This query will detect remote monitoring and management software on workstations. This could potentialy help detect compromised devices.
+This query will detect remote monitoring and management software on workstations. This could potentialy help detect compromised devices.
 
+```kql
 let LOLRMM = externaldata(Name:string,Category:string,Description:string,Author:string,Date:datetime,LastModified:datetime,Website:string,Filename:string,OriginalFileName:string,PEDescription:string,Product:string,Privileges:string,Free:string,Verification:string,SupportedOS:string,Capabilities:string,
 Vulnerabilities:string,InstallationPaths:string,Artifacts:string,Detections:string,References:string,Acknowledgement:string)[@"https://lolrmm.io/api/rmm_tools.csv"] with (format="csv", ignoreFirstRecord=True);
 // Exclude any allowed RMMs based on name, example: dynamic(["Rapid7"]);
