@@ -1,5 +1,6 @@
 This is to detect if a user is connecting to a remote host uisng PSSession. 
 
+```kql
 DeviceEvents
 //| where TimeGenerated >= ago(90d)
 | where AdditionalFields contains "Enter-PSSession"
