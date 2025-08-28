@@ -1,5 +1,6 @@
-//This query detects rogue devices on a network. It utilizes Defender for Endpoint device discovery.
+This query detects rogue devices on a network. It utilizes Defender for Endpoint device discovery.
 
+```kql
 let ipRanges = dynamic(["Enter Subnet", "Enter Subnet", "Enter Subnet"]);
 DeviceInfo
 | where Timestamp >= ago(60d)
