@@ -43,6 +43,7 @@ let tap_issued =
     | extend userPrincipalName_ = tostring(parse_json(tostring(InitiatedBy.user)).userPrincipalName),
              TAPDisplayUserName = tostring(TargetResources[0].displayName)
     | project TAPTime=TimeGenerated, UserPrincipalName=userPrincipalName_, TAPDisplayUserName;
+// Password reset events (3-day lookback)
 let password_reset = 
     AuditLogs
     | where TimeGenerated >= startofday(now()) - 3d
