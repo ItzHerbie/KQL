@@ -1,5 +1,6 @@
-//This detection monitors who is accessing external repositories to fetch or push code within the last 7days
+This detection monitors who is accessing external repositories to fetch or push code within the last 7days
 
+```kql
 DeviceProcessEvents
 | where TimeGenerated >= ago(7d) //Change timeframe to liking
 | where InitiatingProcessVersionInfoProductName in (@"Git") // Add tools that can be used to Fetch/Pull/Push Code
