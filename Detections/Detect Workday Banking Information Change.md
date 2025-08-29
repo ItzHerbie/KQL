@@ -82,6 +82,7 @@ workday_change_banking_info
     | summarize arg_max(PasswordResetTime, *) by UserPrincipalName, ChangeTime, SigninTime, AuthRegisterTime, PasswordResetTime
 | extend AuthMethodFound = iff(isnull(AuthRegisterTime), "AuthMethodFound=No", "AuthMethodFound=Yes"),
          TAPFound = iff(isnull(TAPTime), "TAPFound=No", "TAPFound=Yes")
+         PasswordResetFound = iff(isnull(PasswordResetTime), "PasswordResetFound=No", "PasswordResetFound=Yes")
 | project
     UserPrincipalName,
     TAPFound,
