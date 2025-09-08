@@ -24,7 +24,6 @@ let workday_change_banking_info =
         "Add Payment Election",
         "Change My Election",
         "Change My Account",
-        "Change My Election",
         "Delete My Account",
         "Manage Payment Elections"
         )
