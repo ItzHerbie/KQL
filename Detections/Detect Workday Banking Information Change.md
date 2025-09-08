@@ -13,78 +13,89 @@ let workday_signin_logs =
     | where TimeGenerated >= startofday(now())
     | where AppDisplayName has "Workday - Production"
     | where ResultType == 0
-    | project SigninTime=TimeGenerated, UserPrincipalName, SigninUserAgent=UserAgent, DeviceDetail;
+    | project SigninTime=TimeGenerated, UserPrincipalName, SigninUserAgent=UserAgent;
 // Workday banking/account change events (today)
 let workday_change_banking_info =
     ASimAuditEventLogs
     | where TimeGenerated >= startofday(now())
     | where Operation in (
-        "Delete My Account",
-        "Change My Election",
         "Add My Account",
+        "Add My Election",
+        "Add Payment Election",
+        "Change My Election",
         "Change My Account",
         "Change My Election",
+        "Delete My Account",
         "Manage Payment Elections"
-      )
-    | project ChangeTime=TimeGenerated,
-              UserPrincipalName=ActorUsername,
-              Operation,
-              Object,
-              WorkdayUserAgent=HttpUserAgent;
+        )
+    | project
+        ChangeTime=TimeGenerated,
+        UserPrincipalName=ActorUsername,
+        Operation,
+        Object,
+        WorkdayUserAgent=HttpUserAgent
+    | where Object != "";
 // Auth method registrations (3-day lookback)
 let registered_auth_methods =
     AuditLogs
-    | where TimeGenerated >= startofday(now()) - 3d
-    | where OperationName == "User registered security info"
+    | where TimeGenerated >= startofday(now()) - 5d
+    | where OperationName contains "User registered security info"
     | where ResultDescription contains "User registered"
     | extend userPrincipalName_ = tostring(parse_json(tostring(InitiatedBy.user)).userPrincipalName)
     | project AuthRegisterTime=TimeGenerated, UserPrincipalName=userPrincipalName_;
 // TAP issued events (3-day lookback)
 let tap_issued =
     AuditLogs
-    | where TimeGenerated >= startofday(now()) - 3d
+    | where TimeGenerated >= startofday(now()) - 5d
     | where OperationName == "User registered security info"
     | where ResultDescription == "User registered temporary access pass method"
     | where Result == "success"
-    | extend userPrincipalName_ = tostring(parse_json(tostring(InitiatedBy.user)).userPrincipalName),
-             TAPDisplayUserName = tostring(TargetResources[0].displayName)
+    | extend
+        userPrincipalName_ = tostring(parse_json(tostring(InitiatedBy.user)).userPrincipalName),
+        TAPDisplayUserName = tostring(TargetResources[0].displayName)
     | project TAPTime=TimeGenerated, UserPrincipalName=userPrincipalName_, TAPDisplayUserName;
 // Password reset events (3-day lookback)
 let password_reset = 
     AuditLogs
-    | where TimeGenerated >= startofday(now()) - 3d
+    | where TimeGenerated >= startofday(now()) - 5d
     | where ResultDescription == "User successfully reset password"
     | extend userPrincipalName_ = tostring(parse_json(tostring(InitiatedBy.user)).userPrincipalName)
     | project PasswordResetTime=TimeGenerated, UserPrincipalName=userPrincipalName_, ResultDescription;
-// Join change ↔ sign-in (banking change within 60m of sign-in)
+let account_creation_time =
+    IdentityInfo
+    | summarize arg_min(AccountCreationTime, *) by AccountUPN, AccountDisplayName
+    | project UserPrincipalName=AccountUPN, AccountDisplayName, AccountCreationTime;
 workday_change_banking_info
-    | join kind=inner (workday_signin_logs) on UserPrincipalName
+| join kind=inner (workday_signin_logs) on UserPrincipalName
     | where SigninTime <= ChangeTime and ChangeTime <= SigninTime + 60m
     | extend TimeDifference = datetime_diff("minute", ChangeTime, SigninTime)
-    // Keep the closest sign-in per (user, change)
+// Keep the closest sign-in per (user, change)
     | summarize arg_min(TimeDifference, *) by UserPrincipalName, ChangeTime
 // Join to Auth Method registrations (within 3 days before sign-in)
 | join kind=leftouter (registered_auth_methods) on UserPrincipalName
     | where isnull(AuthRegisterTime) 
-       or (AuthRegisterTime >= SigninTime - 3d and AuthRegisterTime <= SigninTime)
+        or (AuthRegisterTime >= SigninTime - 5d and AuthRegisterTime <= SigninTime)
     | summarize arg_max(AuthRegisterTime, *) by UserPrincipalName, ChangeTime, SigninTime
 // Join to TAP issued events (within 3 days before AuthRegisterTime if exists, otherwise before SigninTime)
 | join kind=leftouter (tap_issued) on UserPrincipalName
     | where isnull(TAPTime) 
-       or (isnotnull(AuthRegisterTime) and TAPTime >= AuthRegisterTime - 3d and TAPTime <= AuthRegisterTime)
-       or (isnull(AuthRegisterTime) and TAPTime >= SigninTime - 3d and TAPTime <= SigninTime)
+        or (isnotnull(AuthRegisterTime) and TAPTime >= AuthRegisterTime - 5d and TAPTime <= AuthRegisterTime)
+        or (isnull(AuthRegisterTime) and TAPTime >= SigninTime - 5d and TAPTime <= SigninTime)
     // If multiple TAPs exist, keep the latest one
     | summarize arg_max(TAPTime, *) by UserPrincipalName, ChangeTime, SigninTime, AuthRegisterTime
-// Join to password reset events (within 3 days before AutheRegisterTime if Exists, otherwise before SigninTime)
+// Join to password reset events (within 3 days before AuthRegisterTime if Exists, oterwise before SigninTime)
 | join kind=leftouter (password_reset) on UserPrincipalName
     | where isnull(PasswordResetTime)
-        or (PasswordResetTime >= SigninTime - 3d and PasswordResetTime <= SigninTime)
+        or (PasswordResetTime >= SigninTime - 5d and PasswordResetTime <= SigninTime)
     | summarize arg_max(PasswordResetTime, *) by UserPrincipalName, ChangeTime, SigninTime, AuthRegisterTime, PasswordResetTime
-| extend AuthMethodFound = iff(isnull(AuthRegisterTime), "AuthMethodFound=No", "AuthMethodFound=Yes"),
-         TAPFound = iff(isnull(TAPTime), "TAPFound=No", "TAPFound=Yes")
-         PasswordResetFound = iff(isnull(PasswordResetTime), "PasswordResetFound=No", "PasswordResetFound=Yes")
+| join kind=leftouter (account_creation_time) on UserPrincipalName
+| extend
+    AuthMethodFound = iff(isnull(AuthRegisterTime), "AuthMethodFound=No", "AuthMethodFound=Yes"),
+    TAPFound = iff(isnull(TAPTime), "TAPFound=No", "TAPFound=Yes"),
+    PasswordResetFound = iff(isnull(PasswordResetTime), "PasswordResetFound=No", "PasswordResetFound=Yes")
 | project
     UserPrincipalName,
+    AccountCreationTime,
     TAPFound,
     TAPTime,
     TAPDisplayUserName,
@@ -98,6 +109,6 @@ workday_change_banking_info
     Operation,
     Object,
     WorkdayUserAgent,
-    SigninUserAgent,
-    DeviceDetail
+    SigninUserAgent
 | order by ChangeTime desc
+| where TAPFound == "TAPFound=Yes" or AuthMethodFound == "AuthMethodFound=Yes" or PasswordResetFound == "PasswordResetFound=Yes"
