@@ -2,7 +2,7 @@
     Description: 
 </h2>
 This detection is to detect on a successful sign-in to Workday where the banking information was changed within 60 minutes. 
-Once it sees that banking information was changed it will go back and look to see if a Temporary Access Pass (TAP) was issued, if an authentication method was registered, and if there was a password change 5 days prior to the user viewing or changing their banking information in Workday. 
+Once it sees that banking information was changed it will do a lookback to see if a Temporary Access Pass (TAP) was issued, if an authentication method was registered, and if there was a password change 5 days prior to the user viewing or changing their banking information in Workday. 
 <br />
 
 #### Azure Sentinel/Defender XDR
