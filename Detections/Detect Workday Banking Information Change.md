@@ -34,7 +34,7 @@ let workday_change_banking_info =
         Object,
         WorkdayUserAgent=HttpUserAgent
     | where Object != "";
-// Auth method registrations (3-day lookback)
+// Auth method registrations (5-day lookback)
 let registered_auth_methods =
     AuditLogs
     | where TimeGenerated >= startofday(now()) - 5d
@@ -42,7 +42,7 @@ let registered_auth_methods =
     | where ResultDescription contains "User registered"
     | extend userPrincipalName_ = tostring(parse_json(tostring(InitiatedBy.user)).userPrincipalName)
     | project AuthRegisterTime=TimeGenerated, UserPrincipalName=userPrincipalName_;
-// TAP issued events (3-day lookback)
+// TAP issued events (5-day lookback)
 let tap_issued =
     AuditLogs
     | where TimeGenerated >= startofday(now()) - 5d
@@ -53,7 +53,7 @@ let tap_issued =
         userPrincipalName_ = tostring(parse_json(tostring(InitiatedBy.user)).userPrincipalName),
         TAPDisplayUserName = tostring(TargetResources[0].displayName)
     | project TAPTime=TimeGenerated, UserPrincipalName=userPrincipalName_, TAPDisplayUserName;
-// Password reset events (3-day lookback)
+// Password reset events (5-day lookback)
 let password_reset = 
     AuditLogs
     | where TimeGenerated >= startofday(now()) - 5d
@@ -70,7 +70,7 @@ workday_change_banking_info
     | extend TimeDifference = datetime_diff("minute", ChangeTime, SigninTime)
 // Keep the closest sign-in per (user, change)
     | summarize arg_min(TimeDifference, *) by UserPrincipalName, ChangeTime
-// Join to Auth Method registrations (within 3 days before sign-in)
+// Join to Auth Method registrations (within 5 days before sign-in)
 | join kind=leftouter (registered_auth_methods) on UserPrincipalName
     | where isnull(AuthRegisterTime) 
         or (AuthRegisterTime >= SigninTime - 5d and AuthRegisterTime <= SigninTime)
