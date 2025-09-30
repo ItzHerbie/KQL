@@ -1,4 +1,4 @@
-Info coming soon!
+Details Coming Soon!
 
 ```kql
 CommonSecurityLog
