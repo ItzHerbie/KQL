@@ -1,4 +1,4 @@
-Info Coming soon!
+More Details Coming Soon!
 
 ```kql
 let ipRanges = dynamic([
