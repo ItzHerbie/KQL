@@ -3,7 +3,7 @@
 ```kql
 let ipRanges = dynamic([
 "ENTER SUBNET FOR GLOBAL PROTECT",
-"ENTER SUBNET FOR Global Protect"
+"ENTER SUBNET FOR GLOBAL PROTECT"
 ]);
 CommonSecurityLog
 | where DeviceVendor == "Palo Alto Networks"
