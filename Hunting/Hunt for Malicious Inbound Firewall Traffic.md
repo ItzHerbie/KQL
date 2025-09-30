@@ -11,8 +11,6 @@ CommonSecurityLog
         Description=ThreatDescription
 | where isnotempty(MaliciousIP)
     and isnotempty(Country)
-    and isnotempty(Latitude)
-    and isnotempty(Longitude)
 | where TrafficDirection == "InboundOrUnknown"
 | where TimeGenerated >= ago(30d)
 | where Country != "United States"
