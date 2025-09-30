@@ -1,6 +1,6 @@
 
 
-```KQL
+```kql
 let ipRanges = dynamic([
 "ENTER SUBNET FOR GLOBAL PROTECT",
 "ENTER SUBNET FOR Global Protect"
