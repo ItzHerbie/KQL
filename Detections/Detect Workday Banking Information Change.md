@@ -75,14 +75,14 @@ workday_change_banking_info
     | where isnull(AuthRegisterTime) 
         or (AuthRegisterTime >= SigninTime - 5d and AuthRegisterTime <= SigninTime)
     | summarize arg_max(AuthRegisterTime, *) by UserPrincipalName, ChangeTime, SigninTime
-// Join to TAP issued events (within 3 days before AuthRegisterTime if exists, otherwise before SigninTime)
+// Join to TAP issued events (within 5 days before AuthRegisterTime if exists, otherwise before SigninTime)
 | join kind=leftouter (tap_issued) on UserPrincipalName
     | where isnull(TAPTime) 
         or (isnotnull(AuthRegisterTime) and TAPTime >= AuthRegisterTime - 5d and TAPTime <= AuthRegisterTime)
         or (isnull(AuthRegisterTime) and TAPTime >= SigninTime - 5d and TAPTime <= SigninTime)
     // If multiple TAPs exist, keep the latest one
     | summarize arg_max(TAPTime, *) by UserPrincipalName, ChangeTime, SigninTime, AuthRegisterTime
-// Join to password reset events (within 3 days before AuthRegisterTime if Exists, oterwise before SigninTime)
+// Join to password reset events (within 5 days before AuthRegisterTime if Exists, oterwise before SigninTime)
 | join kind=leftouter (password_reset) on UserPrincipalName
     | where isnull(PasswordResetTime)
         or (PasswordResetTime >= SigninTime - 5d and PasswordResetTime <= SigninTime)
