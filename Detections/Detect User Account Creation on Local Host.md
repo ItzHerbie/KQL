@@ -1,4 +1,4 @@
-This will detect when a user account is created on the local host. 
+
 * Security Monitoring & Threat Detection
   * **Early Indicator of Compromise:** Attackers often create local user accounts to maintain persistence, move laterally, or escalate privileges. Detecting new accounts can reveal suspicious activity before further damage occurs.
 
