@@ -1,3 +1,11 @@
+**Why it Matter**
+Detecting Privileged Identity Management (PIM) activation of sensitive roles after hours is important because it helps catch abnormal privileged access behavior that may signal compromise, insider misuse, or unauthorized activity. Most privileged actions occur during business hours or planned maintenance windows. 
+
+After-hours PIM activation can indicate:
+     - Compromised credentials being used discreetly
+     - Attempted data access or system changes when less monitoring staff are online
+     - Insider threat behavior when they expect less oversight
+
 ```KQL
 let sensitiveRole = dynamic(["Global Administrator", "Authentication Administrator", "Privileged Authentication Administrator", "Data Purger"]);
 AuditLogs
