@@ -6,6 +6,10 @@ Detecting Privileged Identity Management (PIM) activation of sensitive roles aft
      - Attempted data access or system changes when less monitoring staff are online
      - Insider threat behavior when they expect less oversight
 
+- **MITRE ATT&CK**
+       - T1548 - Abuse Elevation Control Mechanism
+       - T1548.005 - Temporary Elevate Cloud Access
+
 ```KQL
 let sensitiveRole = dynamic(["Global Administrator", "Authentication Administrator", "Privileged Authentication Administrator", "Data Purger"]);
 AuditLogs
