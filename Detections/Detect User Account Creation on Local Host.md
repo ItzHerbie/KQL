@@ -13,4 +13,4 @@ SecurityEvent
 | project Account, Computer, Activity, TargetAccount
 ```
 
-[Reference Local Admin Account for futher investigation and hunting](https://github.com/ItzHerbie/KQL/blob/main/Detections/Detect%20Local%20Admin%20Accounts.md)
+[Reference Local Admin Account Detection for futher investigation and hunting](https://github.com/ItzHerbie/KQL/blob/main/Detections/Detect%20Local%20Admin%20Accounts.md)
