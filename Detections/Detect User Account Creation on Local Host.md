@@ -6,6 +6,10 @@
 
   * **Detecting Privilege Abuse:** Even legitimate admins can accidentally create overly privileged accounts or bypass security standards. Monitoring helps enforce least-privilege practices.
 
+**MITRE ATT&CK:**
+ - T1136 - Create Account
+ - T1136.001 - Local Account
+
 ```KQL
 SecurityEvent
 | where EventID == "4720" // 4720 - Account Creation
