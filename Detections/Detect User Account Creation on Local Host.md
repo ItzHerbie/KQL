@@ -11,3 +11,6 @@ SecurityEvent
 | where EventID == "4720" // 4720 - Account Creation
 | where Account != @"ADD KNOWN ACCOUNTS LIKE MIM"
 | project Account, Computer, Activity, TargetAccount
+```
+
+[Reference Local Admin Account for futher investigation and hunting](https://github.com/ItzHerbie/KQL/blob/main/Detections/Detect%20Local%20Admin%20Accounts.md)
