@@ -1,3 +1,4 @@
+What we know [Report](https://www.malwarebytes.com/blog/threat-intel/2026/02/fake-7-zip-downloads-are-turning-home-pcs-into-proxy-nodes)
 Indicators of Compromise (IOCs)
 
 File paths
