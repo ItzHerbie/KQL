@@ -37,3 +37,28 @@ Observed IPs (Cloudflare-fronted):
   <li>104.21.57.71</li>
   <li>172.67.160.241</li>
 </ul>
+
+```kql
+//Azure Sentinel / Defender XDR Hunting Query
+// Make sure to remove []
+
+DeviceNetworkEvents
+| where TimeGenerated >= ago(90d)
+| where RemoteUrl has_any ("7zip[.]com",
+"soc.hero-sms[.]co",
+"neo.herosms[.]co",
+"flux.smshero[.]co",
+"nova.smshero[.]ai",
+"apex.herosms[.]ai",
+"spark.herosms[.]io",
+"zest.hero-sms[.]ai",
+"prime.herosms[.]vip",
+"vivid.smshero[.]vip",
+"mint.smshero[.]com",
+"pulse.herosms[.]cc",
+"glide.smshero[.]cc",
+"svc.ha-teams[.]office[.]com",
+"iplogger[.]org"
+)
+| summarize by TimeGenerated, DeviceName, InitiatingProcessFolderPath, RemoteUrl
+```
