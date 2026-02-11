@@ -77,7 +77,7 @@ union
 (
     DeviceFileEvents
     | where TimeGenerated >= ago(90d)
-    | where SHA256 in (FileHashes)
+    | where SHA256 has_any (FileHashes)
     | project
         TimeGenerated,
         DeviceName,
@@ -105,7 +105,7 @@ union
 (
     DeviceNetworkEvents
     | where TimeGenerated >= ago(90d)
-    | where RemoteIP in (IPs)
+    | where RemoteIP has_any (IPs)
     | project
         TimeGenerated,
         DeviceName,
