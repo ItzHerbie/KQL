@@ -18,6 +18,7 @@ File hashes (SHA-256)
 
 Domains:
 <ul>
+  <li>7zip[.]com</li>
   <li>soc.hero-sms[.]co</li>
   <li>neo.herosms[.]co</li>
   <li>flux.smshero[.]co</li>
