@@ -42,32 +42,6 @@ Observed IPs (Cloudflare-fronted):
 
 ### Sentinel / Defender XDR
 ```kql
-//Azure Sentinel / Defender XDR Hunting Query
-// Make sure to remove []
-
-DeviceNetworkEvents
-| where TimeGenerated >= ago(90d)
-| where RemoteUrl has_any ("7zip[.]com",
-"soc.hero-sms[.]co",
-"neo.herosms[.]co",
-"flux.smshero[.]co",
-"nova.smshero[.]ai",
-"apex.herosms[.]ai",
-"spark.herosms[.]io",
-"zest.hero-sms[.]ai",
-"prime.herosms[.]vip",
-"vivid.smshero[.]vip",
-"mint.smshero[.]com",
-"pulse.herosms[.]cc",
-"glide.smshero[.]cc",
-"svc.ha-teams[.]office[.]com",
-"iplogger[.]org"
-)
-| summarize by TimeGenerated, DeviceName, InitiatingProcessFolderPath, RemoteUrl
-```
-```kql
-//Any incidents pertaining to indicators
-
 let FileHashes = dynamic([
     "e7291095de78484039fdc82106d191bf41b7469811c4e31b4228227911d25027",
     "b7a7013b951c3cea178ece3363e3dd06626b9b98ee27ebfd7c161d0bbcfbd894",
@@ -79,6 +53,7 @@ let FilePaths = dynamic([
     @"C:\Windows\SysWOW64\hero\hero.dll"
 ]);
 let Domains = dynamic([
+    "7zip.com",
     "soc.hero-sms.co",
     "neo.herosms.co",
     "flux.smshero.co",
@@ -99,6 +74,48 @@ let IPs = dynamic([
     "172.67.160.241"
 ]);
 union
+(
+    DeviceFileEvents
+    | where TimeGenerated >= ago(90d)
+    | where SHA256 in (FileHashes)
+    | project
+        TimeGenerated,
+        DeviceName,
+        Indicator = SHA256,
+        IndicatorType = "FileHash",
+        FileName,
+        FolderPath,
+        InitiatingProcessFileName,
+        ActionType
+),
+(
+    DeviceNetworkEvents
+    | where TimeGenerated >= ago(90d)
+    | where RemoteUrl has_any (Domains)
+    | project
+        TimeGenerated,
+        DeviceName,
+        Indicator = RemoteUrl,
+        IndicatorType = "Domain",
+        RemoteIP,
+        InitiatingProcessFileName,
+        InitiatingProcessFolderPath,
+        ActionType
+),
+(
+    DeviceNetworkEvents
+    | where TimeGenerated >= ago(90d)
+    | where RemoteIP in (IPs)
+    | project
+        TimeGenerated,
+        DeviceName,
+        Indicator = RemoteIP,
+        IndicatorType = "IP",
+        RemoteUrl,
+        InitiatingProcessFileName,
+        InitiatingProcessFolderPath,
+        ActionType
+),
 (
     SecurityAlert
     | where TimeGenerated >= ago(90d)
