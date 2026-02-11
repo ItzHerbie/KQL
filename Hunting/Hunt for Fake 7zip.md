@@ -1,9 +1,9 @@
 Indicators of Compromise (IOCs)
 
 File paths
-<li>C:\Windows\SysWOW64\hero\Uphero.exe<li>
-<li>C:\Windows\SysWOW64\hero\hero.exe<li>
-<li>C:\Windows\SysWOW64\hero\hero.dll<li>
+<li>C:\Windows\SysWOW64\hero\Uphero.exe</li>
+<li>C:\Windows\SysWOW64\hero\hero.exe</li>
+<li>C:\Windows\SysWOW64\hero\hero.dll</li>
 
 File hashes (SHA-256)
 e7291095de78484039fdc82106d191bf41b7469811c4e31b4228227911d25027 (Uphero.exe)
