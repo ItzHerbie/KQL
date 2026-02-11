@@ -14,8 +14,6 @@ File hashes (SHA-256)
 <li>3544ffefb2a38bf4faf6181aa4374f4c186d3c2a7b9b059244b65dce8d5688d9 (hero.dll)</li>
 </ul>
 
-Network indicators
-
 Domains:
 <ul>
   <li>soc.hero-sms[.]co</li>
