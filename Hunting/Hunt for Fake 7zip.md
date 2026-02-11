@@ -1,6 +1,7 @@
 Indicators of Compromise (IOCs)
-<ul>
+
 File paths
+<ul>
 <li>C:\Windows\SysWOW64\hero\Uphero.exe</li>
 <li>C:\Windows\SysWOW64\hero\hero.exe</li>
 <li>C:\Windows\SysWOW64\hero\hero.dll</li>
