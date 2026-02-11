@@ -40,6 +40,7 @@ Observed IPs (Cloudflare-fronted):
   <li>172.67.160.241</li>
 </ul>
 
+#### Sentinel / Defender XDR
 ```kql
 //Azure Sentinel / Defender XDR Hunting Query
 // Make sure to remove []
