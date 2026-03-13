@@ -1,4 +1,4 @@
-Recentl blobg post by Black Hills Information Security: https://www.blackhillsinfosec.com/the-curious-case-of-the-comburglar/
+Recentl blog post by Black Hills Information Security: https://www.blackhillsinfosec.com/the-curious-case-of-the-comburglar/
 
 ```kql
 let SuspiciousIPs = dynamic([
